@@ -1,4 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -69,8 +69,8 @@ class RoomViewSet(ModelViewSet):
     serializer_class = RoomSerializer
 
     #? Filtrar os dados por query strings com a lib - mais prático, menos personalizável
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', '^description', 'topic__id']
 
     # definir o model que será retornado
     def get_queryset(self):
