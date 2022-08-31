@@ -1,0 +1,27 @@
+{% extends 'main.html' %} {% block content %}
+<h1>{{room.name}}</h1>
+<h3>Host: {{room.host}}</h3>
+<p>Topic: {{room.topic}}</p>
+{% if room.description%}
+<p>Description: {{room.description}}</p>
+{% endif %}
+<hr />
+<h2>Messages:</h2>
+{% if messages %}
+<ul>
+    {% for e in messages %}
+    <li>
+        <span>@{{e.user}} -</span><br /> {{e.body}}
+        <br />
+        <span>{{e.created|timesince}}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %} {% if request.user.is_authenticated %}
+<div>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <input type="text" name="message" placeholder="write your message here..." />
+    </form>
+</div>
+{% endif %} {% endblock %}

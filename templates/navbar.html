@@ -1,0 +1,7 @@
+<button><a href="/">Home</a></button>
+
+<hr />
+<a href="/admin/login/?next=/admin/"><button>Login</button></a>
+<form method="GET" action="{% url 'home' %}">
+    <input type="text" name="q" placeholder="Search Rooms..." />
+</form>

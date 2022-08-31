@@ -1,0 +1,34 @@
+{% extends 'main.html' %} {% block content %}
+<h1>Home Template</h1>
+<div>
+    <h3>{{room_count}} rooms available</h3>
+    <ul>
+        {% for e in rooms %}
+        <br />
+        <li>
+            <a href="/room/{{e.id}}">Name: {{e.name}} <br /></a>
+        </li>
+        {% if request.user == e.host %}
+        <small>Host - @{{e.host}} (You)</small
+    ><br />
+    <small>Topic - {{e.topic}} </small>
+        <br />
+        <form method="POST" action="">
+            {% csrf_token %}
+            <button type="submit" name="delete" value="{{e.id}}">Delete</button>
+        </form>
+        <a href="update/{{e.id}}"><button>Update</button></a>
+        <br /> {% else %}
+        <small>Host - @{{e.host}}</small
+    ><br />
+    <small>Topic - {{e.topic}} <br /></small> {% endif %} {% endfor %}
+    </ul>
+    <ul>
+        <li><a href="{% url 'home' %}">All</a></li>
+        {% for e in topics %}
+        <li><a href="{% url 'home' %}?q={{e.name}}">{{e.name}}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="/create"><button>Create a new room</button></a>
+</div>
+{% endblock %}
