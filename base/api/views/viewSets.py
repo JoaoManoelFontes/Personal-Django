@@ -1,72 +1,19 @@
 from rest_framework import filters
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from base.models import Room
-from .serializers import RoomSerializer
-import requests, re, json
+from ..serializers import RoomSerializer
 
-#usando api_view - com funções
-
-# Listar todas as salas
-@api_view(['GET','POST'])
-def getRooms(request):
-
-    if request.method == 'POST':
-
-        serializer = RoomSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-    serializer = RoomSerializer(Room.objects.all(), many=True)
-    return Response({"serializer":serializer.data})
-
-
-# Pegar determinada sala e poder alterá-la ou deletá-la
-@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
-def getRoom(request, roomId):
-    room = get_object_or_404(Room.objects.all(), pk=roomId)
-    if request.method == 'GET':
-        serializer = RoomSerializer(room)
-        return Response(serializer.data, status = status.HTTP_200_OK)
-    elif request.method == 'PUT':
-        serializer = RoomSerializer(room, data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_200_OK)
-            
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        room.delete()
-        return Response({'DELETED':True, 'BACK_TO_HOME':'http://127.0.0.1:8000/api/'}, status = status.HTTP_204_NO_CONTENT)
-    elif request.method == 'PATCH':
-        serializer = RoomSerializer(room, data=request.data, partial=True)
-        return Response(serializer.data, status = status.HTTP_200_OK)
-
-
-# Pegar as salas pelo seu tópico
-@api_view(['GET'])
-def getRoomsForTopic(request, topicId):
-        rooms = Room.objects.filter(topic = topicId)
-        
-        serializer = RoomSerializer(rooms, many=True)
-        return Response(serializer.data)
-
-# consumir a api das licitações
-def get_data_from_api():    
-    request = json.loads(requests.get("http://nadic.ifrn.edu.br/api/dou/2022-02-08/?usuario=dev_nadic").content).get('licitacoes')
-
-    return request[0]
-
-# Usando ModelViewSet - com classes
 class RoomViewSet(ModelViewSet):
     serializer_class = RoomSerializer
+
+    #? Django authentication 
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = [IsAuthenticatedOrReadOnly,]
 
     #? Filtrar os dados por query strings com a lib - mais prático, menos personalizável
     filter_backends = [filters.SearchFilter]

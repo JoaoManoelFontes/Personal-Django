@@ -17,14 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from base.api.views import RoomViewSet
+from base.api.views.viewSets import RoomViewSet
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
-router.register(r'teste', RoomViewSet, basename="Room")
+router.register(r'rooms', RoomViewSet, basename="Room")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('base.urls')),
-    path('api/', include('base.api.urls')),
-    path('test/', include(router.urls))
+    path('test/', include('base.api.urls')),
+    path('api/', include(router.urls)),
+    path('token', obtain_auth_token)
 ]
