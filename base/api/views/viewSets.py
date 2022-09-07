@@ -5,20 +5,29 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.shortcuts import get_object_or_404
 from base.models import Room
-from ..serializers import RoomSerializer
+from ..serializers import ReadRoomSerializer, WriteRoomSerializer
 
 class RoomViewSet(ModelViewSet):
-    serializer_class = RoomSerializer
 
     #? Django authentication 
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = [IsAuthenticatedOrReadOnly,]
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = [IsAuthenticatedOrReadOnly,]
 
     #? Filtrar os dados por query strings com a lib - mais prático, menos personalizável
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', '^description', 'topic__id']
 
+
+    # definir o serializer que será ultilizado
+    def get_serializer_class(self):
+        print(self.action)
+        if self.action in ("list", "retrieve", "topics"):
+            return ReadRoomSerializer 
+        return WriteRoomSerializer
+
+        
     # definir o model que será retornado
     def get_queryset(self):
 
@@ -30,12 +39,9 @@ class RoomViewSet(ModelViewSet):
         return Room.objects.all()
 
     # Sobreescrendo as actions do CRUD
-
-    # def list(self, request):
-    #     return Response(self.serializer_class(self.get_queryset(), many=True).data, status=status.HTTP_200_OK)  
     
     def create(self, request):
-        serializer = RoomSerializer(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status = status.HTTP_201_CREATED)
@@ -44,17 +50,20 @@ class RoomViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         room = Room.objects.all().get(pk=kwargs['pk'])
-        serializer = self.serializer_class(room)
+        serializer = self.get_serializer_class()(room)
         return Response({"serializer":serializer.data})
 
+# ? Sobreescrevendo o método de listar uma sala específica - a action pronta é mais completa
     def retrieve(self, request, *args, **kwargs):
-        room = Room.objects.all().get(pk=kwargs['pk'])
-        serializer = self.serializer_class(room)
-        return Response({"serializer":serializer.data})
+        print(kwargs['pk'])
+        room = get_object_or_404(Room.objects.all(), pk=kwargs['pk'])
+        print(room)
+        serializer = self.get_serializer_class()(room)
+        return Response({"serializer": serializer.data})
 
     def update(self, request, *args, **kwargs):
         room = Room.objects.all().get(pk=kwargs['pk'])
-        serializer = self.serializer_class(room, data=request.data)
+        serializer = self.get_serializer_class()(room, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"serializer":serializer.data})
@@ -63,7 +72,7 @@ class RoomViewSet(ModelViewSet):
      
     def partial_update(self, request, *args, **kwargs):
         room = Room.objects.all().get(pk=kwargs['pk'])
-        serializer = self.serializer_class(room, data=request.data, partial=True)
+        serializer = self.get_serializer_class()(room, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"serializer":serializer.data}, status=status.HTTP_200_OK)
@@ -76,5 +85,5 @@ class RoomViewSet(ModelViewSet):
         rooms = Room.objects.filter(topic = pk)
         if not rooms:
             return Response({"Error":"There is not a room with this topic!"}, status=status.HTTP_400_BAD_REQUEST) 
-        serializer = self.serializer_class(rooms, many=True)
+        serializer = self.get_serializer_class()(rooms, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

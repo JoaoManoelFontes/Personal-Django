@@ -1,6 +1,5 @@
-from dataclasses import field
-from email import message
-from rest_framework.serializers import ModelSerializer
+
+from rest_framework.serializers import ModelSerializer, SlugRelatedField
 from rest_framework.fields import SerializerMethodField
 from django.utils.timezone import now
 from base.models import Room, Topic, Message
@@ -17,7 +16,21 @@ class UserSerializer(ModelSerializer):
         model = User
         fields = ('username',)
 
+
 class RoomSerializer(ModelSerializer):
+    #? serializando os models do relacionamento - nested serializers
+    # topic = TopicSerializer()
+    # host = UserSerializer()
+    host = SlugRelatedField(slug_field='username', queryset = User.objects.all())
+    topic = SlugRelatedField(slug_field='name', queryset = Topic.objects.all())
+    class Meta:
+        model = Room
+        fields = ('name', 'description', 'topic', 'host')
+
+
+
+#serializer para visualizar os campos do model 
+class ReadRoomSerializer(ModelSerializer):
     #? serializando os models do relacionamento - nested serializers
     topic = TopicSerializer()
     host = UserSerializer()
@@ -28,3 +41,15 @@ class RoomSerializer(ModelSerializer):
        
     def get_days_since_created(self, obj):
         return ('%s days' % (now() - obj.created).days )
+
+
+#serializer para criar, deletar ou atualizar os campos do model
+class WriteRoomSerializer(ModelSerializer):
+    #? serializando os models do relacionamento - nested serializers
+    # topic = TopicSerializer()
+    # host = UserSerializer()
+    host = SlugRelatedField(slug_field='username', queryset = User.objects.all())
+    topic = SlugRelatedField(slug_field='name', queryset = Topic.objects.all())
+    class Meta:
+        model = Room
+        fields = ('name', 'description', 'topic', 'host')
