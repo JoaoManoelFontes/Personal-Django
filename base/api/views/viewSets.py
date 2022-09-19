@@ -1,3 +1,4 @@
+from unicodedata import name
 from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 from base.models import Room
-from ..serializers import ReadRoomSerializer, WriteRoomSerializer
+from ..serializers import ReadRoomSerializer, RoomSerializer, WriteRoomSerializer
 
 class RoomViewSet(ModelViewSet):
 
@@ -22,18 +23,19 @@ class RoomViewSet(ModelViewSet):
 
     # definir o serializer que será ultilizado
     def get_serializer_class(self):
-        print(self.action)
-        if self.action in ("list", "retrieve", "topics"):
-            return ReadRoomSerializer 
-        return WriteRoomSerializer
+         # ?Usando 2 serializers - um para criar e outro para listar
+         # if self.action in ("list", "retrieve", "topics"):
+         #     return ReadRoomSerializer 
+         # return WriteRoomSerializer
+         return RoomSerializer
 
         
     # definir o model que será retornado
     def get_queryset(self):
-
+        # return Room.objects.all()
         #? Filtrar os dados por query strings - Da pra personalizar
-        id=self.request.query_params.get("id", None)
-        room = Room.objects.filter(pk=id)
+        id=self.request.query_params.get("name", None)
+        room = Room.objects.filter(name=id)
         if room:
             return room
         return Room.objects.all()
@@ -48,18 +50,12 @@ class RoomViewSet(ModelViewSet):
             
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs):
-        room = Room.objects.all().get(pk=kwargs['pk'])
-        serializer = self.get_serializer_class()(room)
-        return Response({"serializer":serializer.data})
-
-# ? Sobreescrevendo o método de listar uma sala específica - a action pronta é mais completa
     def retrieve(self, request, *args, **kwargs):
         print(kwargs['pk'])
         room = get_object_or_404(Room.objects.all(), pk=kwargs['pk'])
         print(room)
         serializer = self.get_serializer_class()(room)
-        return Response({"serializer": serializer.data})
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         room = Room.objects.all().get(pk=kwargs['pk'])
