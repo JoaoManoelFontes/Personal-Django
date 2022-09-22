@@ -1,7 +1,7 @@
 asgiref==3.5.2
-certifi @ file:///C:/Windows/TEMP/abs_e9b7158a-aa56-4a5b-87b6-c00d295b01fanefpc8_o/croots/recipe/certifi_1655968940823/work/certifi
 charset-normalizer==2.1.0
 Django==4.0.6
+django-filter==22.1
 djangorestframework==3.13.1
 idna==3.3
 numpy==1.23.1
@@ -14,4 +14,3 @@ sqlparse==0.4.2
 tzdata==2022.1
 urllib3==1.26.11
 wincertstore==0.2
-windows-curses==2.3.0
