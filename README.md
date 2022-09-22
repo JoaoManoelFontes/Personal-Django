@@ -1,3 +1,3 @@
 # Personal-DjangoStudy
 
-Initial study for python, django, django-rest-api and git flow
+Initial study for python, django, django-rest-api and git flow(updated)
