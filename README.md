@@ -1,4 +1,4 @@
-# Personal-DjangoStudy
+# Study-Django
 
 ## Estudo inicial sobre python, django e django-rest-framework
 
