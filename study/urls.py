@@ -21,12 +21,12 @@ from base.api.views.viewSets import RoomViewSet
 from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
-router.register(r'rooms', RoomViewSet, basename="Room")
+router.register(r"rooms", RoomViewSet, basename="Room")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('base.urls')),
-    path('test/', include('base.api.urls')),
-    path('api/', include(router.urls)),
-    path('token', obtain_auth_token)
+    path("admin/", admin.site.urls),
+    path("", include("base.urls")),
+    path("api2/", include("base.api.urls")),
+    path("api/", include(router.urls)),
+    path("token", obtain_auth_token),
 ]
